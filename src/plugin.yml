@@ -1,0 +1,3 @@
+name: SynamicSignMarket
+main: net.mctitan.market.DynamicSignMarket
+version: alpha
