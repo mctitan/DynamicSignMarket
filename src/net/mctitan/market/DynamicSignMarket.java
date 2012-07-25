@@ -12,6 +12,7 @@ public class DynamicSignMarket extends JavaPlugin {
     public void onEnable() {
         getConfig().options().copyDefaults(true);
         saveConfig();
+        getConfig().getConfigurationSection("Items").getKeys(false);
         
         instance = this;
     }
