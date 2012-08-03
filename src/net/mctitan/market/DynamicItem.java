@@ -98,6 +98,10 @@ public class DynamicItem {
         }, 1);
     }
     
+    public void removeSign(DynamicSign sign) {
+        signs.remove(sign);
+    }
+    
     public void updateSigns() {
         for(DynamicSign sign : signs)
             sign.update(this);

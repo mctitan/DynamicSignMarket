@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +17,14 @@ public class SignListener implements Listener {
     
     public SignListener() {
         plugin = DynamicSignMarket.getInstance();
+    }
+    
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        DynamicSign sign = plugin.getSign(event.getBlock().getLocation());
+        
+        if(sign != null)
+            plugin.rmSign(sign);
     }
     
     @EventHandler

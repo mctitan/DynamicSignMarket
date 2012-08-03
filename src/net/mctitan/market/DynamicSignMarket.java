@@ -43,6 +43,9 @@ public class DynamicSignMarket extends JavaPlugin {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getSignFile()));
             for(DynamicSign sign : (Collection<DynamicSign>)ois.readObject()) {
+                Material mat = sign.location.getLocation().getBlock().getType();
+                if(mat != Material.SIGN_POST || mat != Material.WALL_SIGN)
+                    rmSign(sign);
                 signs.put(sign.location.getLocation(), sign);
             }
         } catch(Exception e) {}
@@ -90,6 +93,11 @@ public class DynamicSignMarket extends JavaPlugin {
     
     public void addSign(Location location, DynamicSign sign) {
         signs.put(location, sign);
+    }
+    
+    public void rmSign(DynamicSign sign) {
+        signs.remove(sign.location.getLocation());
+        getItem(sign.material).removeSign(sign);
     }
     
     private boolean setupEconomy() {
