@@ -1,54 +1,72 @@
 package net.mctitan.market;
 
+import java.util.HashSet;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class DynamicItem {
     //members saved
-    private Material item;
-    private double basePrice;
-    private int baseCount;
-    private double sellMulti;
-    private double incMulti;
-    private int count;
+    public Material item;
+    public double basePrice;
+    public int baseCount;
+    public double sellMulti;
+    public double incMulti;
+    public int count;
     
     //temporary members
     private double price;
     private double increment;
+    private int maxCount;
+    private HashSet<DynamicSign> signs;
     
     public DynamicItem(Material item, FileConfiguration config) {
         this.item = item;
-        load(config);
+        if(config != null)
+            load(config);
         
-        calcIncrement();
-        calcPrice();
+        calcs();
+        signs = new HashSet<>();
     }
     
-    private void calcIncrement() {
+    public DynamicItem(Material item, double bp, int bc, double sm,
+                       double im, int c) {
+        this.item = item;
+        basePrice = bp;
+        baseCount = bc;
+        sellMulti = sm;
+        incMulti = im;
+        count = c;
+        
+        calcs();
+    }
+    
+    private void calcs() {
         increment = incMulti*basePrice/baseCount;
-    }
-    
-    private void calcPrice() {
         price = basePrice*(incMulti*(baseCount-count)/baseCount+1);
+        maxCount = (incMulti>0 ? (int)(baseCount*(1+1/incMulti)) : Integer.MAX_VALUE);
     }
     
     public void buy(int amount) {
         count -= amount;
-        calcIncrement();
-        calcPrice();
+        calcs();
+        updateSigns();
     }
     
     public void sell(int amount) {
         count += amount;
-        calcIncrement();
-        calcPrice();
+        calcs();
+        updateSigns();
     }
     
     public double getBuyPrice(int amount) {
+        if((count - amount) < 0)
+            return -1;
         return (price+increment)*amount+(amount*(amount-1)/2)*increment;
     }
     
     public double getSellPrice(int amount) {
+        if((count + amount) > maxCount)
+            return -1;
         return sellMulti*(price*amount-(amount*(amount-1)/2)*increment);
     }
     
@@ -61,11 +79,27 @@ public class DynamicItem {
     }
     
     public void save(FileConfiguration config) {
-        config.set("Items."+item.name()+".item", item);
         config.set("Items."+item.name()+".basePrice", basePrice);
         config.set("Items."+item.name()+".baseCount", baseCount);
         config.set("Items."+item.name()+".sellMulti", sellMulti);
         config.set("Items."+item.name()+".incMulti", incMulti);
         config.set("Items."+item.name()+".count", count);
+    }
+    
+    public void registerSign(final DynamicSign sign) {
+        signs.add(sign);
+        DynamicSignMarket plugin = DynamicSignMarket.getInstance();
+        final DynamicItem item = this;
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                sign.update(item);
+            }
+        }, 1);
+    }
+    
+    public void updateSigns() {
+        for(DynamicSign sign : signs)
+            sign.update(this);
     }
 }

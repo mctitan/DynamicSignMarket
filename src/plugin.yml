@@ -1,3 +1,4 @@
 name: DynamicSignMarket
 main: net.mctitan.market.DynamicSignMarket
 version: alpha
+depend: [Vault]
