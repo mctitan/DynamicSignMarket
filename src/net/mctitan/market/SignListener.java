@@ -23,6 +23,9 @@ public class SignListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         DynamicSign sign = plugin.getSign(event.getBlock().getLocation());
         
+        if(!event.getPlayer().hasPermission("DSM.breaksign"))
+            return;
+        
         if(sign != null)
             plugin.rmSign(sign);
     }

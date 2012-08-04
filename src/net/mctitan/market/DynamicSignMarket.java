@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.Set;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -52,6 +53,8 @@ public class DynamicSignMarket extends JavaPlugin {
         
         setupEconomy();
         
+        this.getCommand("ds").setExecutor(new Commands());
+        
         getServer().getPluginManager().registerEvents(new SignListener(), this);
     }
     
@@ -85,6 +88,27 @@ public class DynamicSignMarket extends JavaPlugin {
     
     public DynamicItem getItem(Material material) {
         return items.get(material);
+    }
+    
+    public Set<Material> getItems() {
+        return items.keySet();
+    }
+    
+    public void addItem(Material mat, DynamicItem item) {
+        items.put(mat,item);
+        item.save(getConfig());
+        saveConfig();
+    }
+    
+    public void rmItem(Material mat) {
+        getItem(mat).removeAllSigns();
+        items.remove(mat);
+        getConfig().getConfigurationSection("Items").set(mat.name(), null);
+        saveConfig();
+    }
+    
+    public void rmItem(DynamicItem item) {
+        rmItem(item.item);
     }
     
     public DynamicSign getSign(Location location) {

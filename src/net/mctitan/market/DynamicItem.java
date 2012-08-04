@@ -38,6 +38,7 @@ public class DynamicItem {
         count = c;
         
         calcs();
+        signs = new HashSet<>();
     }
     
     private void calcs() {
@@ -105,5 +106,12 @@ public class DynamicItem {
     public void updateSigns() {
         for(DynamicSign sign : signs)
             sign.update(this);
+    }
+    
+    public void removeAllSigns() {
+        for(DynamicSign sign : signs) {
+            DynamicSignMarket.getInstance().rmSign(sign);
+            sign.location.getLocation().getBlock().setType(Material.AIR);
+        }
     }
 }
